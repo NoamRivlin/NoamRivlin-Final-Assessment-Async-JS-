@@ -8,11 +8,14 @@ const hireDates = gids[1];
 const salaries = gids[2];
 // END OF DATA SETUP
 // below is the employee address takens from the browser for comparison
-// 'https://docs.google.com/spreadsheets/d/1C1-em4w0yHmd2N7__9cCSFzxBEf_8r74hQJBsR6qWnE0'
+// 'https://docs.google.com/spreadsheets/d/1C1-em4w0yHmd2N7__9cCSFzxBEf_8r74hQJBsR6qWnE'
 // TODO your code here
+
+// const regexExp = /[0-9a-zA-Z]+/
+
 const fetchGoogleDatas = async () => {
   const responses = await Promise.all(
-    gids.map(async (gid, index) => {
+    gids.map(async (gid) => {
       let response = await fetch(dataURLBase + id + dataURLEnd + gid);
       let data = await response.text();
       // JSON.parse(data.match(/(?<=.*\().*(?=\))/))
@@ -26,6 +29,20 @@ const fetchGoogleDatas = async () => {
   );
   return responses;
 };
+const renderTable = (employees) => {
+  const tableEL = document.querySelector('#employees')
+  tableEL.classList.add('table')
+  const tBodyEL = document.createElement('tbody')
+  employees.map(employee => {
+    const rowEL = tBodyEL.insertRow()
+    for (const key in employee) {
+      const employeeTdEL = document.createElement('td')
+      employeeTdEL.textContent = employee[key]
+      rowEL.append(employeeTdEL)
+    }
+  })
+  tableEL.appendChild(tBodyEL)
+}
 
 const createEmployees = async () => {
   const responses = await fetchGoogleDatas();
@@ -42,7 +59,7 @@ const createEmployees = async () => {
       }).format(responses[2][i].c[0].v),
     });
   }
-  console.log(employees);
-  return employees;
+  renderTable(employees);
 };
-createEmployees();
+
+createEmployees()
