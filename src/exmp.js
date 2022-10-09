@@ -14,71 +14,73 @@ const salaries = gids[2];
 // Last Name | First Name | Hire Date(date without commas) | Salary(with comma and $ symbol)
 
 const fetchGoogleData = (gid) => {
-    fetch(dataURLBase + id + dataURLEnd + gid)
-        .then((res) => console.log("sss"),
-            () => console.log("No internet"))
-
-    // let dataTableRow = JSON.parse(text.slice(47, -2)).table.rows;
-    // if (dataTableRow.length === 11) return dataTableRow.slice(1);
-    // return dataTableRow;
-};
-
-
-const getAllGoogleJson = async () => {
-    const responses = await Promise.all(
-        gids.map((gid) => {
-            //for some reason async await is not needed in the map
-            //if the getAllGoogleJson func is called with an await before
-            return fetchGoogleData(gid);
-        })
-    );
-
-    return responses;
-};
-
-const renderEmployeeTable = async () => {
-    let sheets = await getAllGoogleJson();
-    sheets.map((sheet, sheetIndex) => {
-        sheet.map((row, rowIndex) => {
-            row.c.reverse().map((cell, cellIndex) => {
-                let rowEl;
-                if (sheetIndex === 0 && cellIndex === 0) {
-                    rowEl = document.createElement('tr');
-                    tBodyEL.appendChild(rowEl);
-                } else rowEl = tBodyEL.children[rowIndex];
-                let employeeTd = document.createElement('td');
-                if (sheetIndex === 1)
-                    employeeTd.textContent = new Date(cell.f).toDateString().slice(4);
-                else if (sheetIndex === 2) {
-                    employeeTd.textContent = Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                    }).format(cell.v);
-                } else employeeTd.textContent = cell.v;
-                rowEl.appendChild(employeeTd);
-            });
-        });
+  const dataTableRow = fetch(dataURLBase + id + dataURLEnd + gid)
+    .then((res) => res.text())
+    .then((formatData) => {
+      //   console.log(JSON.parse(formatData.match(/\{\S+\}/g)));
+      //   const googleDataJson = JSON.parse(formatData.slice(47, -2));
+      let dataTableRow = JSON.parse(formatData.slice(47, -2)).table.rows;
+      if (dataTableRow.length === 11) dataTableRow.shift();
+      return dataTableRow;
     });
+
+  return dataTableRow;
+};
+
+const getAllGoogleJson = () => {
+  const responses = Promise.all(
+    gids.map((gid) => {
+      //for some reason async await is not needed in the map
+      //if the getAllGoogleJson func is called with an await before
+      return fetchGoogleData(gid);
+    })
+  );
+  return responses.then((res) => res);
+};
+
+const renderEmployeeTable = () => {
+  let sheets = getAllGoogleJson();
+  sheets.then((res) =>
+    res.map((sheet, sheetIndex) => {
+      sheet.map((row, rowIndex) => {
+        row.c.reverse().map((cell, cellIndex) => {
+          let rowEl;
+          if (sheetIndex === 0 && cellIndex === 0) {
+            rowEl = document.createElement('tr');
+            tBodyEL.appendChild(rowEl);
+          } else rowEl = tBodyEL.children[rowIndex];
+          let employeeTd = document.createElement('td');
+          if (sheetIndex === 1)
+            employeeTd.textContent = new Date(cell.f).toDateString().slice(4);
+          else if (sheetIndex === 2) {
+            employeeTd.textContent = Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'USD',
+            }).format(cell.v);
+          } else employeeTd.textContent = cell.v;
+          rowEl.appendChild(employeeTd);
+        });
+      });
+    })
+  );
 };
 renderEmployeeTable();
 
-let bodyEL = document.querySelector('body');
-let tableEL = document.createElement('table');
+let tableEL = document.querySelector('#employees');
+tableEL.classList.add('table');
 let tBodyEL = document.createElement('tbody');
 let tHeadEL = document.createElement('thead');
 tableEL.append(tHeadEL, tBodyEL);
 
 const creatingTable = () => {
-    const tHeadTitles = ['Last name', 'First name', 'Hire date', 'Salary'];
-    let tblHeadTr = document.createElement('tr');
-    tHeadEL.appendChild(tblHeadTr);
-    for (let tHeadTitle = 0; tHeadTitle < tHeadTitles.length; tHeadTitle++) {
-        let th = document.createElement('th');
-        th.textContent = tHeadTitles[tHeadTitle];
-        tblHeadTr.appendChild(th);
-    }
-    tableEL.appendChild(tBodyEL);
-    bodyEL.appendChild(tableEL);
+  const tHeadTitles = ['Last', 'First', 'Hire date', 'Salary'];
+  let tblHeadTr = document.createElement('tr');
+  tHeadEL.appendChild(tblHeadTr);
+  for (let tHeadTitle = 0; tHeadTitle < tHeadTitles.length; tHeadTitle++) {
+    let th = document.createElement('th');
+    th.textContent = tHeadTitles[tHeadTitle];
+    tblHeadTr.appendChild(th);
+  }
+  tableEL.appendChild(tBodyEL);
 };
 creatingTable();
-

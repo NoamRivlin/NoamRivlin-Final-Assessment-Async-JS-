@@ -30,19 +30,30 @@ const fetchGoogleDatas = async () => {
   return responses;
 };
 const renderTable = (employees) => {
-  const tableEL = document.querySelector('#employees')
-  tableEL.classList.add('table')
-  const tBodyEL = document.createElement('tbody')
-  employees.map(employee => {
-    const rowEL = tBodyEL.insertRow()
+  const tableEL = document.querySelector('#employees');
+  tableEL.classList.add('table');
+  const tBodyEL = document.createElement('tbody');
+  //start creating the headers for each column
+  const tHeaderRow = tBodyEL.insertRow();
+  const tHeadTitles = ['Last', 'First', 'Hire date', 'Salary'];
+  for (let tHeadTitle = 0; tHeadTitle < tHeadTitles.length; tHeadTitle++) {
+    let th = document.createElement('th');
+    th.textContent = tHeadTitles[tHeadTitle];
+    tHeaderRow.appendChild(th);
+  }
+  //start creating the headers for each column
+  //start creating the td of the table body
+  employees.map((employee) => {
+    const rowEL = tBodyEL.insertRow();
     for (const key in employee) {
-      const employeeTdEL = document.createElement('td')
-      employeeTdEL.textContent = employee[key]
-      rowEL.append(employeeTdEL)
+      const employeeTdEL = document.createElement('td');
+      employeeTdEL.textContent = employee[key];
+      rowEL.append(employeeTdEL);
     }
-  })
-  tableEL.appendChild(tBodyEL)
-}
+  });
+  //end creating the td of the table body
+  tableEL.appendChild(tBodyEL);
+};
 
 const createEmployees = async () => {
   const responses = await fetchGoogleDatas();
@@ -62,4 +73,4 @@ const createEmployees = async () => {
   renderTable(employees);
 };
 
-createEmployees()
+createEmployees();
