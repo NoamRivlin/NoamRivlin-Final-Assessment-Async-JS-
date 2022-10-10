@@ -14,16 +14,16 @@ const salaries = gids[2];
 // Last Name | First Name | Hire Date(date without commas) | Salary(with comma and $ symbol)
 
 const fetchGoogleData = (gid) => {
-  const dataTableRow = fetch(dataURLBase + id + dataURLEnd + gid)
+  const responses = fetch(dataURLBase + id + dataURLEnd + gid);
+  const dataTableRow = responses
     .then((res) => res.text())
     .then((formatData) => {
-      //   console.log(JSON.parse(formatData.match(/\{\S+\}/g)));
-      //   const googleDataJson = JSON.parse(formatData.slice(47, -2));
+      console.log(formatData);
+      //   console.log(JSON.parse(formatData.match(/\{\S+\}/g))); doesnt work due to hire dates withespace...
       let dataTableRow = JSON.parse(formatData.slice(47, -2)).table.rows;
       if (dataTableRow.length === 11) dataTableRow.shift();
       return dataTableRow;
     });
-
   return dataTableRow;
 };
 
@@ -35,7 +35,7 @@ const getAllGoogleJson = () => {
       return fetchGoogleData(gid);
     })
   );
-  return responses.then((res) => res);
+  return responses;
 };
 
 const renderEmployeeTable = () => {

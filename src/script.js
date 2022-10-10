@@ -32,17 +32,34 @@ const fetchGoogleDatas = async () => {
 const renderTable = (employees) => {
   const tableEL = document.querySelector('#employees');
   tableEL.classList.add('table');
+  tableEL.classList.add('table-dark');
+  // tableEL.setAttribute('data-sortable', 'true ');
   const tBodyEL = document.createElement('tbody');
   //start creating the headers for each column
-  const tHeaderRow = tBodyEL.insertRow();
+  // const tHeaderRow = tableEL.insertRow(); has created unnecessary tbody
+  const tHeader = document.createElement('thead');
+  const tHeaderRow = document.createElement('tr');
   const tHeadTitles = ['Last', 'First', 'Hire date', 'Salary'];
-  for (let tHeadTitle = 0; tHeadTitle < tHeadTitles.length; tHeadTitle++) {
+  for (
+    let tHeadTitleIndex = 0;
+    tHeadTitleIndex < tHeadTitles.length;
+    tHeadTitleIndex++
+  ) {
     let th = document.createElement('th');
-    th.textContent = tHeadTitles[tHeadTitle];
+    th.textContent = tHeadTitles[tHeadTitleIndex];
+
+    //start trying to add bootstrap functions
+    // th.setAttribute('scope', 'col');
+    // th.setAttribute('data-field', 'name');
+    // th.setAttribute('data-sortable', 'true');
+    //end trying to add bootstrap functions. not sure how the sort works and the scope, col doesnt change anything....
+
     tHeaderRow.appendChild(th);
   }
-  //start creating the headers for each column
-  //start creating the td of the table body
+  tHeader.appendChild(tHeaderRow);
+  tableEL.appendChild(tHeader);
+  //end creating the headers for each column
+  //start creating the tds of the table body
   employees.map((employee) => {
     const rowEL = tBodyEL.insertRow();
     for (const key in employee) {
@@ -57,7 +74,6 @@ const renderTable = (employees) => {
 
 const createEmployees = async () => {
   const responses = await fetchGoogleDatas();
-
   let employees = [];
   for (let i = 0; i < 10; i++) {
     employees.push({
@@ -72,5 +88,4 @@ const createEmployees = async () => {
   }
   renderTable(employees);
 };
-
 createEmployees();
