@@ -29,63 +29,104 @@ const fetchGoogleDatas = async () => {
   );
   return responses;
 };
+
 const renderTable = (employees) => {
   const tableEL = document.querySelector('#employees');
   tableEL.classList.add('table');
   tableEL.classList.add('table-dark');
-  // tableEL.setAttribute('data-sortable', 'true ');
-  const tBodyEL = document.createElement('tbody');
-  //start creating the headers for each column
-  // const tHeaderRow = tableEL.insertRow(); has created unnecessary tbody
-  const tHeader = document.createElement('thead');
-  const tHeaderRow = document.createElement('tr');
-  const tHeadTitles = ['Last', 'First', 'Hire date', 'Salary'];
-  for (
-    let tHeadTitleIndex = 0;
-    tHeadTitleIndex < tHeadTitles.length;
-    tHeadTitleIndex++
-  ) {
-    let th = document.createElement('th');
-    th.textContent = tHeadTitles[tHeadTitleIndex];
 
-    //start trying to add bootstrap functions
-    // th.setAttribute('scope', 'col');
-    // th.setAttribute('data-field', 'name');
-    // th.setAttribute('data-sortable', 'true');
-    //end trying to add bootstrap functions. not sure how the sort works and the scope, col doesnt change anything....
-
-    tHeaderRow.appendChild(th);
-  }
-  tHeader.appendChild(tHeaderRow);
-  tableEL.appendChild(tHeader);
-  //end creating the headers for each column
-  //start creating the tds of the table body
-  employees.map((employee) => {
-    const rowEL = tBodyEL.insertRow();
-    for (const key in employee) {
-      const employeeTdEL = document.createElement('td');
-      employeeTdEL.textContent = employee[key];
-      rowEL.append(employeeTdEL);
-    }
+  const employeesTable = $('#employees').bootstrapTable({
+    columns: [
+      {
+        title: 'last',
+        field: 'lastN',
+        sortable: true,
+        //bootstrap sorts the strings on it's own just fine
+        //even with the 2 Romans
+        // sorter(firstNameA, firstNameB, rowA, rowB) {
+        // console.log();
+        // if (firstNameA === firstNameB) {
+        //   console.log(firstNameA);
+        //   firstNameA = rowA.lastN;
+        //   firstNameB = rowB.lastN;
+        //   console.log(firstNameA);
+        // }
+        // if (a < b) -1;
+        // else if (a > b) 1;
+        // else 0;
+        // },
+      },
+      {
+        title: 'first',
+        field: 'firstN',
+        sortable: true,
+      },
+      {
+        title: 'Hire Date',
+        field: 'hireDate',
+        sortable: true,
+        sorter(a, b) {
+          if (Date.parse(a) > Date.parse(b)) return 1;
+          if (Date.parse(a) < Date.parse(b)) return -1;
+        },
+        formatter: (value) => new Date(value).toDateString().slice(4),
+      },
+      {
+        title: 'salary',
+        field: 'salary',
+        sortable: true,
+        // sorter(a, b) {
+        //changing the data to numbers makes the sorter unnecessary
+        // if (
+        //   parseInt(a.slice(1, -3).split(',').join('')) >
+        //   parseInt(b.slice(1, -3).split(',').join(''))
+        // )
+        //   return 1;
+        // if (
+        //   parseInt(a.slice(1, -3).split(',').join('')) <
+        //   parseInt(b.slice(1, -3).split(',').join(''))
+        // )
+        //   return -1;
+        // },
+        formatter: (value) =>
+          Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }).format(value),
+        // formatter(value) {
+        //   return Intl.NumberFormat('en-US', {
+        //     style: 'currency',
+        //     currency: 'USD',
+        //   }).format(value);
+        // },
+      },
+    ],
+    data: employees,
   });
-  //end creating the td of the table body
-  tableEL.appendChild(tBodyEL);
 };
 
 const createEmployees = async () => {
   const responses = await fetchGoogleDatas();
+  console.log(responses);
   let employees = [];
-  for (let i = 0; i < 10; i++) {
+  //the for loop 10 magic number seemed bad
+  //another way to loop 10 times
+  responses[0].map((response, i) => {
     employees.push({
       lastN: responses[0][i].c[1].v,
       firstN: responses[0][i].c[0].v,
-      hireDate: new Date(responses[1][i].c[0].f).toDateString().slice(4),
-      salarie: Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(responses[2][i].c[0].v),
+      hireDate: responses[1][i].c[0].f,
+      salary: responses[2][i].c[0].v,
     });
-  }
+  });
+  // for (let i = 0; i < 10; i++) {
+  //   employees.push({
+  //     lastN: responses[0][i].c[1].v,
+  //     firstN: responses[0][i].c[0].v,
+  //     hireDate: responses[1][i].c[0].f,
+  //     salary: responses[2][i].c[0].v,
+  //   });
+  // }
   renderTable(employees);
 };
 createEmployees();
