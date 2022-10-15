@@ -18,9 +18,8 @@ const fetchGoogleData = (gid) => {
   const dataTableRow = responses
     .then((res) => res.text())
     .then((formatData) => {
-      console.log(formatData);
-      //   console.log(JSON.parse(formatData.match(/\{\S+\}/g))); doesnt work due to hire dates withespace...
-      let dataTableRow = JSON.parse(formatData.slice(47, -2)).table.rows;
+      // let dataTableRow = JSON.parse(formatData.slice(47, -2)).table.rows;
+      let dataTableRow = JSON.parse(formatData.match(/\{.+\}/g)).table.rows;
       if (dataTableRow.length === 11) dataTableRow.shift();
       return dataTableRow;
     });

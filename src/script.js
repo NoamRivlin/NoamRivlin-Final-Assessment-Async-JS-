@@ -19,7 +19,8 @@ const fetchGoogleDatas = async () => {
       let response = await fetch(dataURLBase + id + dataURLEnd + gid);
       let data = await response.text();
       // JSON.parse(data.match(/(?<=.*\().*(?=\))/))
-      const FormData = JSON.parse(data.slice(47, -2));
+      // const FormData = JSON.parse(data.slice(47, -2));
+      const FormData = JSON.parse(data.match(/\{.+\}/g));
       const rows = FormData.table.rows;
       if (rows.length === 11) {
         rows.shift();
